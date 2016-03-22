@@ -1,7 +1,6 @@
 package cobus.project;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -11,20 +10,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
 
-
-public class AddContactActivity extends AppCompatActivity
+/**
+ * Created by Tsuki on 2016/03/22.
+ */
+public class IntelDetailsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener  {
 
-    EditText edtContact, edtInformation, edtNumber;
+    TextView txtViewIntelInformation, txtViewIntelThreatLevel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_addcontact);
+        setContentView(R.layout.activity_inteldetails);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -40,9 +39,12 @@ public class AddContactActivity extends AppCompatActivity
         assert navigationView != null;
         navigationView.setNavigationItemSelectedListener(this);
 
-        edtContact = (EditText) findViewById(R.id.edtContact);
-        edtInformation = (EditText) findViewById(R.id.edtInformation);
-        edtNumber = (EditText) findViewById(R.id.edtNumber);
+        txtViewIntelInformation = (TextView) findViewById(R.id.txtViewIntelInformation);
+        txtViewIntelThreatLevel = (TextView) findViewById(R.id.txtViewIntelThreatLevel);
+
+        Intent intent = getIntent();
+        txtViewIntelThreatLevel.append("\n" + intent.getExtras().getString("Threat"));
+        txtViewIntelInformation.append("\n" + intent.getExtras().getString("Information"));
 
     }
 
@@ -105,29 +107,7 @@ public class AddContactActivity extends AppCompatActivity
         return true;
     }
 
-    public void onAddContactClick(View view) {
-        String contact = edtContact.getText().toString();
-        String information = edtInformation.getText().toString();
-        String number = edtNumber.getText().toString();
 
-        if(contact.isEmpty() || information.isEmpty() || number.isEmpty()){
-            Toast.makeText(this, "Please fill in all text boxes", Toast.LENGTH_SHORT).show();
-        }
-        else {
-            try {
-                SQLiteDatabase DatabaseManipulator = this.openOrCreateDatabase("DailyAgentLife", MODE_PRIVATE, null);
-                DatabaseManipulator.execSQL("CREATE TABLE IF NOT EXISTS tblContact(ID integer primary key, Contact VARCHAR, Information VARCHAR, Number VARCHAR);");
 
-                DatabaseManipulator.execSQL(String.format("INSERT INTO tblContact(Contact, Information, Number) VALUES('%s', '%s', '%s')",
-                        contact, information, number));
-                Toast.makeText(this, "Contact Added", Toast.LENGTH_LONG).show();
-                Intent openViewContact = new Intent(this, ViewContactsActivity.class);
-                startActivity(openViewContact);
-            }catch (Exception e)
-            {
-                Toast.makeText(AddContactActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-            finish();
-        }
-    }
+
 }

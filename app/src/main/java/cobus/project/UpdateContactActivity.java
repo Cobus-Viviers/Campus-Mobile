@@ -98,6 +98,8 @@ public class UpdateContactActivity extends AppCompatActivity
             startActivity(openAddContact);
 
         } else if (id == R.id.nav_intel) {
+            Intent openViewIntel = new Intent(this, ViewIntelActivity.class);
+            startActivity(openViewIntel);
 
         } else if (id == R.id.nav_locations) {
 

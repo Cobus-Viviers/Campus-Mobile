@@ -13,18 +13,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 
 public class AddIntelActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener  {
 
-    EditText edtContact, edtInformation, edtNumber;
+    EditText edtInformation;
+    Spinner spinnerThreatLevel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_updatecontact);
+        setContentView(R.layout.activity_addintel);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -40,9 +42,8 @@ public class AddIntelActivity extends AppCompatActivity
         assert navigationView != null;
         navigationView.setNavigationItemSelectedListener(this);
 
-        edtContact = (EditText) findViewById(R.id.edtContact);
         edtInformation = (EditText) findViewById(R.id.edtInformation);
-        edtNumber = (EditText) findViewById(R.id.edtNumber);
+        spinnerThreatLevel = (Spinner) findViewById(R.id.spinnerThreatLevel);
 
     }
 
@@ -90,6 +91,8 @@ public class AddIntelActivity extends AppCompatActivity
             startActivity(openAddContact);
 
         } else if (id == R.id.nav_intel) {
+            Intent openViewIntel = new Intent(this, ViewIntelActivity.class);
+            startActivity(openViewIntel);
 
         } else if (id == R.id.nav_locations) {
 
@@ -103,24 +106,22 @@ public class AddIntelActivity extends AppCompatActivity
         return true;
     }
 
-    public void onAddContactClick(View view) {
-        String contact = edtContact.getText().toString();
-        String information = edtInformation.getText().toString();
-        String number = edtNumber.getText().toString();
 
-        if(contact.isEmpty() || information.isEmpty() || number.isEmpty()){
+    public void onAddIntelClick(View view) {
+        String information = edtInformation.getText().toString();
+        String threat = spinnerThreatLevel.toString();
+
+        if(information.isEmpty()){
             Toast.makeText(this, "Please fill in all text boxes", Toast.LENGTH_SHORT).show();
         }
         else {
             try {
                 SQLiteDatabase DatabaseManipulator = this.openOrCreateDatabase("DailyAgentLife", MODE_PRIVATE, null);
-                DatabaseManipulator.execSQL("CREATE TABLE IF NOT EXISTS tblContact(ID integer primary key, Contact VARCHAR, Information VARCHAR, Number VARCHAR);");
+                DatabaseManipulator.execSQL("CREATE TABLE IF NOT EXISTS tblIntel(ID integer primary key, Information VARCHAR, Threat VARCHAR);");
+                DatabaseManipulator.execSQL("INSERT INTO tblIntel(Information, Threat) VALUES('"+information+"','"+threat+"')");
+                Intent openViewIntel = new Intent(this, ViewIntelActivity.class);
+                startActivity(openViewIntel);
 
-                DatabaseManipulator.execSQL(String.format("INSERT INTO tblContact(Contact, Information, Number) VALUES('%s', '%s', '%s')",
-                        contact, information, number));
-                Toast.makeText(this, "Contact Added", Toast.LENGTH_LONG).show();
-                Intent openViewContact = new Intent(this, ViewContactsActivity.class);
-                startActivity(openViewContact);
             }catch (Exception e)
             {
                 Toast.makeText(AddIntelActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();

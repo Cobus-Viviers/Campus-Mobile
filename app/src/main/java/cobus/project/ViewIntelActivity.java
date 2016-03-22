@@ -21,45 +21,44 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 
-public class ViewContactsActivity extends AppCompatActivity
+public class ViewIntelActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    Contact[] contacts = getContacts();
+    Intel[] intels = getIntels();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_contact);
+        setContentView(R.layout.activity_intel);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
 
         //Create list view
-        ListAdapter adapter = new ContactsAdapter(this, contacts);
+        ListAdapter adapter = new IntelAdapter(this, intels);
 
-        ListView listView = (ListView) findViewById(R.id.listContacts);
+        ListView listView = (ListView) findViewById(R.id.listIntel);
 
         listView.setAdapter(adapter);
         registerForContextMenu(listView);
-        final Intent openContactDetialsActivity = new Intent(this, ContactDetailsActivity.class);
+        final Intent openIntelDetailsActivity = new Intent(this, IntelDetailsActivity.class);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Contact contact = contacts[position];
-                openContactDetialsActivity.putExtra("Contact",contact.getContact() );
-                openContactDetialsActivity.putExtra("Information", contact.getInformation());
-                openContactDetialsActivity.putExtra("Number", contact.getNumber());
-                startActivity(openContactDetialsActivity);
+                Intel intel = intels[position];
+                openIntelDetailsActivity.putExtra("Information", intel.getInformation());
+                openIntelDetailsActivity.putExtra("Threat", intel.getThreat());
+                startActivity(openIntelDetailsActivity);
             }
         });
 
 
-        final Intent openAddContactActivity = new Intent(this, AddContactActivity.class);
+        final Intent openAddIntelsActivity = new Intent(this, AddIntelActivity.class);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                startActivity(openAddContactActivity);
+                startActivity(openAddIntelsActivity);
             }
         });
 
@@ -77,9 +76,9 @@ public class ViewContactsActivity extends AppCompatActivity
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        if (v.getId() ==   R.id.listContacts){
+        if (v.getId() ==   R.id.listIntel){
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-            menu.setHeaderTitle(contacts[info.position].getContact());
+            menu.setHeaderTitle(intels[info.position].getThreat());
             String[] menuItems = getResources().getStringArray(R.array.menu);
             for (int i = 0; i<menuItems.length; i++){
                 menu.add(Menu.NONE, i, i, menuItems[i]);
@@ -93,19 +92,18 @@ public class ViewContactsActivity extends AppCompatActivity
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         int menuItemIndex = item.getItemId();
-        Contact contact = contacts[info.position];
+        Intel intel = intels[info.position];
         if (menuItemIndex == 0){
-            Intent openEditContactActivity = new Intent(this, UpdateContactActivity.class);
-            openEditContactActivity.putExtra("ID", contact.getId());
-            openEditContactActivity.putExtra("Contact", contact.getContact());
-            openEditContactActivity.putExtra("Information", contact.getInformation());
-            openEditContactActivity.putExtra("Number", contact.getNumber());
+            Intent openEditContactActivity = new Intent(this, UpdateIntelActivity.class);
+            openEditContactActivity.putExtra("ID", intel.getId());
+            openEditContactActivity.putExtra("Information", intel.getInformation());
+            openEditContactActivity.putExtra("Threat", intel.getThreat());
             startActivity(openEditContactActivity);
         }
         if (menuItemIndex == 1){
             SQLiteDatabase DatabaseManipulator = this.openOrCreateDatabase("DailyAgentLife",MODE_PRIVATE, null);
-            DatabaseManipulator.execSQL("DELETE FROM tblContact WHERE id = '" + contact.getId() + "';");
-            Toast.makeText(ViewContactsActivity.this, contacts[info.position].getContact()+" has been deleted", Toast.LENGTH_SHORT).show();
+            DatabaseManipulator.execSQL("DELETE FROM tblIntel WHERE id = '" + intel.getId() + "';");
+            Toast.makeText(ViewIntelActivity.this, "Intel has been deleted", Toast.LENGTH_SHORT).show();
             finish();
             startActivity(getIntent());
 
@@ -113,24 +111,23 @@ public class ViewContactsActivity extends AppCompatActivity
         return true;
     }
 
-    private Contact[] getContacts(){
-        Cursor cursor = LoginActivity.DatabaseManipulator.rawQuery("SELECT * FROM tblContact", null);
+    private Intel[] getIntels(){
+        Cursor cursor = LoginActivity.DatabaseManipulator.rawQuery("SELECT * FROM tblIntel", null);
         cursor.moveToFirst();
 
-        Contact[] contacts = new Contact[cursor.getCount()];
+        Intel[] intels = new Intel[cursor.getCount()];
         int index = 0;
         if (cursor.getCount() > 0){
             do {
                 String id = cursor.getString(0);
-                String contact = cursor.getString(1);
-                String information = cursor.getString(2);
-                String number = cursor.getString(3);
-                contacts[index] = new Contact(Integer.parseInt(id), contact, information, number);
+                String information = cursor.getString(1);
+                String threat = cursor.getString(2);
+                intels[index] = new Intel(Integer.parseInt(id), information, threat);
                 index++;
             }while(cursor.moveToNext());
         }
         cursor.close();
-        return contacts;
+        return intels;
     }
 
     @Override
@@ -173,8 +170,8 @@ public class ViewContactsActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_contacts) {
-            Intent openAddContact = new Intent(this, ViewContactsActivity.class);
-            startActivity(openAddContact);
+            Intent openViewContacts = new Intent(this, ViewContactsActivity.class);
+            startActivity(openViewContacts);
         } else if (id == R.id.nav_intel) {
             Intent openViewIntel = new Intent(this, ViewIntelActivity.class);
             startActivity(openViewIntel);
