@@ -16,7 +16,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
-public class AddContactActivity extends AppCompatActivity
+public class AddIntelActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener  {
 
     EditText edtContact, edtInformation, edtNumber;
@@ -123,7 +123,7 @@ public class AddContactActivity extends AppCompatActivity
                 startActivity(openViewContact);
             }catch (Exception e)
             {
-                Toast.makeText(AddContactActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddIntelActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
             finish();
         }

@@ -18,14 +18,16 @@ import android.widget.Toast;
 /**
  * Created by Tsuki on 2016/03/22.
  */
-public class EditContactActivity extends AppCompatActivity
+public class UpdateContactActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     EditText edtContact, edtInformation, edtNumber;
+    Intent intent;
+    int id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_addcontact);
+        setContentView(R.layout.activity_updatecontact);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -40,10 +42,15 @@ public class EditContactActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         assert navigationView != null;
         navigationView.setNavigationItemSelectedListener(this);
-
+        intent = getIntent();
         edtContact = (EditText) findViewById(R.id.edtContact);
         edtInformation = (EditText) findViewById(R.id.edtInformation);
         edtNumber = (EditText) findViewById(R.id.edtNumber);
+
+        edtContact.setText(intent.getExtras().getString("Contact"));
+        edtInformation.setText(intent.getExtras().getString("Information"));
+        edtNumber.setText(intent.getExtras().getString("Number"));
+        id = intent.getExtras().getInt("ID");
 
     }
 
@@ -104,7 +111,7 @@ public class EditContactActivity extends AppCompatActivity
         return true;
     }
 
-    public void onAddContactClick(View view) {
+    /*public void onAddContactClick(View view) {
         String contact = edtContact.getText().toString();
         String information = edtInformation.getText().toString();
         String number = edtNumber.getText().toString();
@@ -124,7 +131,37 @@ public class EditContactActivity extends AppCompatActivity
                 startActivity(openViewContact);
             }catch (Exception e)
             {
-                Toast.makeText(EditContactActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(UpdateContactActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            finish();
+        }
+    }*/
+
+    public void onEditContactCancel(View view) {
+        finish();
+
+    }
+
+    public void onEditContactClick(View view) {
+        SQLiteDatabase DatabaseManipulator = this.openOrCreateDatabase("DailyAgentLife",MODE_PRIVATE, null);
+
+        String contact = edtContact.getText().toString();
+        String information = edtInformation.getText().toString();
+        String number = edtNumber.getText().toString();
+        if(contact.isEmpty() || information.isEmpty() || number.isEmpty()){
+            Toast.makeText(this, "Please fill in all text boxes", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            try {
+                DatabaseManipulator.execSQL(String.format("UPDATE tblContact SET Contact = '%s', Information = '%s', Number = '%s' WHERE ID = '%s';"
+                          ,contact, information, number, id));
+
+                Intent openViewContact = new Intent(this, ViewContactsActivity.class);
+                startActivity(openViewContact);
+
+            }catch (Exception e)
+            {
+                Toast.makeText(UpdateContactActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
             }
             finish();
         }

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,15 +16,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.List;
 
 
 public class ViewContactsActivity extends AppCompatActivity
@@ -100,12 +93,18 @@ public class ViewContactsActivity extends AppCompatActivity
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         int menuItemIndex = item.getItemId();
+        Contact contact = contacts[info.position];
         if (menuItemIndex == 0){
-            Toast.makeText(ViewContactsActivity.this, "Update "+ contacts[info.position].getContact(), Toast.LENGTH_SHORT).show();
+            Intent openEditContactActivity = new Intent(this, UpdateContactActivity.class);
+            openEditContactActivity.putExtra("ID", contact.getId());
+            openEditContactActivity.putExtra("Contact", contact.getContact());
+            openEditContactActivity.putExtra("Information", contact.getInformation());
+            openEditContactActivity.putExtra("Number", contact.getNumber());
+            startActivity(openEditContactActivity);
         }
         if (menuItemIndex == 1){
             SQLiteDatabase DatabaseManipulator = this.openOrCreateDatabase("DailyAgentLife",MODE_PRIVATE, null);
-            DatabaseManipulator.execSQL("DELETE FROM tblContact WHERE id = '" + contacts[info.position].getId() + "';");
+            DatabaseManipulator.execSQL("DELETE FROM tblContact WHERE id = '" + contact.getId() + "';");
             Toast.makeText(ViewContactsActivity.this, contacts[info.position].getContact()+" has been deleted", Toast.LENGTH_SHORT).show();
             finish();
             startActivity(getIntent());
