@@ -53,7 +53,8 @@
             android:gravity="center"
             android:hint="@string/AddContact_Number_EditText"
             android:id="@+id/edtNumber"
-            android:inputType="number" />
+            android:inputType="number"
+            android:maxLength="10"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

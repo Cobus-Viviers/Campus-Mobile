@@ -12,20 +12,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-
-public class AddContactActivity extends AppCompatActivity
+/**
+ * Created by Tsuki on 2016/03/22.
+ */
+public class ContactDetailsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener  {
-
-    EditText edtContact, edtInformation, edtNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_addcontact);
+        setContentView(R.layout.activity_contactdetails);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -40,10 +39,6 @@ public class AddContactActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         assert navigationView != null;
         navigationView.setNavigationItemSelectedListener(this);
-
-        edtContact = (EditText) findViewById(R.id.edtContact);
-        edtInformation = (EditText) findViewById(R.id.edtInformation);
-        edtNumber = (EditText) findViewById(R.id.edtNumber);
 
     }
 
@@ -102,29 +97,7 @@ public class AddContactActivity extends AppCompatActivity
         return true;
     }
 
-    public void onAddContactClick(View view) {
-        String contact = edtContact.getText().toString();
-        String information = edtInformation.getText().toString();
-        String number = edtNumber.getText().toString();
 
-        if(contact.isEmpty() || information.isEmpty() || number.isEmpty()){
-            Toast.makeText(this, "Please fill in all text boxes", Toast.LENGTH_SHORT).show();
-        }
-        else {
-            try {
-                SQLiteDatabase DatabaseManipulator = this.openOrCreateDatabase("DailyAgentLife", MODE_PRIVATE, null);
-                DatabaseManipulator.execSQL("CREATE TABLE IF NOT EXISTS tblContact(ID integer primary key, Contact VARCHAR, Information VARCHAR, Number VARCHAR);");
 
-                DatabaseManipulator.execSQL(String.format("INSERT INTO tblContact(Contact, Information, Number) VALUES('%s', '%s', '%s')",
-                        contact, information, number));
-                Toast.makeText(this, "Contact Added", Toast.LENGTH_LONG).show();
-                Intent openViewContact = new Intent(this, ViewContacts.class);
-                startActivity(openViewContact);
-            }catch (Exception e)
-            {
-                Toast.makeText(AddContactActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-            finish();
-        }
-    }
+
 }
