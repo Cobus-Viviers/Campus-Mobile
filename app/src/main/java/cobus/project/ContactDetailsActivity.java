@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -20,6 +21,8 @@ import android.widget.Toast;
  */
 public class ContactDetailsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener  {
+
+    TextView txtViewContactContact, txtViewContactInformation, txtViewContactNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,15 @@ public class ContactDetailsActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         assert navigationView != null;
         navigationView.setNavigationItemSelectedListener(this);
+
+        txtViewContactContact = (TextView) findViewById(R.id.txtViewContactContact);
+        txtViewContactInformation = (TextView) findViewById(R.id.txtViewContactInformation);
+        txtViewContactNumber = (TextView) findViewById(R.id.txtViewContactNumber);
+
+        Intent intent = getIntent();
+        txtViewContactContact.append("\n" + intent.getExtras().getString("Contact"));
+        txtViewContactInformation.append("\n" + intent.getExtras().getString("Information"));
+        txtViewContactNumber.append("\n" + intent.getExtras().getString("Number"));
 
     }
 
@@ -82,6 +94,8 @@ public class ContactDetailsActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_contacts) {
+            Intent openAddContact = new Intent(this, ViewContactsActivity.class);
+            startActivity(openAddContact);
 
         } else if (id == R.id.nav_intel) {
 

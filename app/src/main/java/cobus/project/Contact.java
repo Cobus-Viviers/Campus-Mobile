@@ -1,9 +1,11 @@
 package cobus.project;
 
+import android.os.Parcelable;
+
 /**
  * Created by Tsuki on 2016/03/22.
  */
-public class Contact {
+public class Contact{
     private  int id;
     private String contact;
     private String information;

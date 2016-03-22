@@ -12,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -87,6 +86,8 @@ public class AddContactActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_contacts) {
+            Intent openAddContact = new Intent(this, ViewContactsActivity.class);
+            startActivity(openAddContact);
 
         } else if (id == R.id.nav_intel) {
 
@@ -118,7 +119,7 @@ public class AddContactActivity extends AppCompatActivity
                 DatabaseManipulator.execSQL(String.format("INSERT INTO tblContact(Contact, Information, Number) VALUES('%s', '%s', '%s')",
                         contact, information, number));
                 Toast.makeText(this, "Contact Added", Toast.LENGTH_LONG).show();
-                Intent openViewContact = new Intent(this, ViewContacts.class);
+                Intent openViewContact = new Intent(this, ViewContactsActivity.class);
                 startActivity(openViewContact);
             }catch (Exception e)
             {
