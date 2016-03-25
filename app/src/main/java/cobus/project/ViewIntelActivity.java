@@ -119,8 +119,9 @@ public class ViewIntelActivity extends AppCompatActivity
         int index = 0;
         if (cursor.getCount() > 0){
             do {
+                //TODO SHOW PIETER
                 String id = cursor.getString(0);
-                String information = cursor.getString(1);
+                String information = cursor.getString(3);
                 String threat = cursor.getString(2);
                 intels[index] = new Intel(Integer.parseInt(id), information, threat);
                 index++;

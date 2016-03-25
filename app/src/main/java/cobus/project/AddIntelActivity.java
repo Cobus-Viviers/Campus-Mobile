@@ -12,16 +12,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 
 public class AddIntelActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener  {
+        implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
 
     EditText edtInformation;
     Spinner spinnerThreatLevel;
+    String threat = "Critical";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +45,13 @@ public class AddIntelActivity extends AppCompatActivity
         assert navigationView != null;
         navigationView.setNavigationItemSelectedListener(this);
 
-        edtInformation = (EditText) findViewById(R.id.edtInformation);
+        ArrayAdapter adapter = ArrayAdapter.createFromResource(this, R.array.threatLevels, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerThreatLevel = (Spinner) findViewById(R.id.spinnerThreatLevel);
+        spinnerThreatLevel.setAdapter(adapter);
+
+        edtInformation = (EditText) findViewById(R.id.edtInformation);
+
 
     }
 
@@ -109,8 +117,7 @@ public class AddIntelActivity extends AppCompatActivity
 
     public void onAddIntelClick(View view) {
         String information = edtInformation.getText().toString();
-        String threat = spinnerThreatLevel.toString();
-
+        threat = spinnerThreatLevel.getSelectedItem().toString();
         if(information.isEmpty()){
             Toast.makeText(this, "Please fill in all text boxes", Toast.LENGTH_SHORT).show();
         }
@@ -118,7 +125,7 @@ public class AddIntelActivity extends AppCompatActivity
             try {
                 SQLiteDatabase DatabaseManipulator = this.openOrCreateDatabase("DailyAgentLife", MODE_PRIVATE, null);
                 DatabaseManipulator.execSQL("CREATE TABLE IF NOT EXISTS tblIntel(ID integer primary key, Information VARCHAR, Threat VARCHAR);");
-                DatabaseManipulator.execSQL("INSERT INTO tblIntel(Information, Threat) VALUES('"+information+"','"+threat+"')");
+                DatabaseManipulator.execSQL("INSERT INTO tblIntel(Information, Threat) VALUES('"+information+"', '"+threat+"');");
                 Intent openViewIntel = new Intent(this, ViewIntelActivity.class);
                 startActivity(openViewIntel);
 
@@ -128,5 +135,15 @@ public class AddIntelActivity extends AppCompatActivity
             }
             finish();
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        threat = parent.getItemAtPosition(position).toString();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }

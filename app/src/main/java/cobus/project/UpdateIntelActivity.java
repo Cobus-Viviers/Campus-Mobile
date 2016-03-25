@@ -124,7 +124,7 @@ public class UpdateIntelActivity extends AppCompatActivity
 
         SQLiteDatabase DatabaseManipulator = this.openOrCreateDatabase("DailyAgentLife",MODE_PRIVATE, null);
         String information = edtInformation.getText().toString();
-        String threat = spinner.toString();
+        String threat = spinner.getSelectedItem().toString();
 
         if (information.isEmpty()){
             Toast.makeText(this, "Please fill in all text boxes", Toast.LENGTH_SHORT).show();
