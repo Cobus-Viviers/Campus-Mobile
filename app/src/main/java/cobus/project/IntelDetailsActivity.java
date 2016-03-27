@@ -98,6 +98,8 @@ public class IntelDetailsActivity extends AppCompatActivity
         } else if (id == R.id.nav_locations) {
 
         } else if (id == R.id.nav_operation) {
+            Intent openViewOperation = new Intent(this, ViewOperationActivity.class);
+            startActivity(openViewOperation);
 
         }
 

@@ -18,6 +18,12 @@ public class Contact{
         this.number = number;
     }
 
+    public Contact(String contact, String information, String number) {
+        this.contact = contact;
+        this.information = information;
+        this.number = number;
+    }
+
     public int getId() {
         return id;
     }

@@ -1,8 +1,6 @@
 package cobus.project;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -11,6 +9,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,46 +20,52 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 
-public class ViewIntelActivity extends AppCompatActivity
+public class ViewOperationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    Intel[] intels;
+    Operation[] operations;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_intel);
+
+        setContentView(R.layout.activity_operation);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         DatabaseHandler dh = new DatabaseHandler(this);
-        intels = dh.getIntels();
 
+        operations = dh.getOperations();
+
+        Log.v("DEBUG", "---" + Integer.toString(operations.length));
         //Create list view
-        ListAdapter adapter = new IntelAdapter(this, intels);
+        ListAdapter adapter = new OperationAdapter(this, operations);
 
-        ListView listView = (ListView) findViewById(R.id.listIntel);
-
+        ListView listView = (ListView) findViewById(R.id.listOperation);
+        Log.v("DEBUG", "Adapeter Created");
         listView.setAdapter(adapter);
+        Log.v("DEBUG", "Adapeter Set");
+
         registerForContextMenu(listView);
-        final Intent openIntelDetailsActivity = new Intent(this, IntelDetailsActivity.class);
+        final Intent openOperationDetailsActivity = new Intent(this, OperationDetailsActivity.class);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intel intel = intels[position];
-                openIntelDetailsActivity.putExtra("Information", intel.getInformation());
-                openIntelDetailsActivity.putExtra("Threat", intel.getThreat());
-                startActivity(openIntelDetailsActivity);
+                Operation operation = operations[position];
+                openOperationDetailsActivity.putExtra("Information", operation.getInformation());
+                openOperationDetailsActivity.putExtra("StartDate", operation.getStartDate());
+                openOperationDetailsActivity.putExtra("Agent", operation.getAgent().getContact());
+                startActivity(openOperationDetailsActivity);
             }
         });
 
 
-        final Intent openAddIntelsActivity = new Intent(this, AddIntelActivity.class);
+        final Intent openAddOperationActivity = new Intent(this, AddOperationActivity.class);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                startActivity(openAddIntelsActivity);
+                startActivity(openAddOperationActivity);
             }
         });
 
@@ -78,9 +83,9 @@ public class ViewIntelActivity extends AppCompatActivity
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        if (v.getId() ==   R.id.listIntel){
+        if (v.getId() ==   R.id.listOperation){
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-            menu.setHeaderTitle(intels[info.position].getThreat());
+            menu.setHeaderTitle(operations[info.position].getStartDate().toString());
             String[] menuItems = getResources().getStringArray(R.array.menu);
             for (int i = 0; i<menuItems.length; i++){
                 menu.add(Menu.NONE, i, i, menuItems[i]);
@@ -94,17 +99,18 @@ public class ViewIntelActivity extends AppCompatActivity
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         int menuItemIndex = item.getItemId();
-        Intel intel = intels[info.position];
+        Operation operation = operations[info.position];
         if (menuItemIndex == 0){
-            Intent openEditContactActivity = new Intent(this, UpdateIntelActivity.class);
-            openEditContactActivity.putExtra("ID", intel.getId());
-            openEditContactActivity.putExtra("Information", intel.getInformation());
-            openEditContactActivity.putExtra("Threat", intel.getThreat());
+            Intent openEditContactActivity = new Intent(this, UpdateOperationActivity.class);
+            openEditContactActivity.putExtra("Information", operation.getInformation());
+            openEditContactActivity.putExtra("StartDate", operation.getStartDate().getTime());
+            openEditContactActivity.putExtra("Agent", operation.getAgent().getId());
+            openEditContactActivity.putExtra("ID", operation.getiD());
             startActivity(openEditContactActivity);
         }
         if (menuItemIndex == 1){
-            new DatabaseHandler(this).delete(intel.getId(), "tblIntel");
-            Toast.makeText(ViewIntelActivity.this, "Intel has been deleted", Toast.LENGTH_SHORT).show();
+            new DatabaseHandler(this).delete(operation.getiD(), "tblOperation");
+            Toast.makeText(ViewOperationActivity.this, "Operation has been deleted", Toast.LENGTH_SHORT).show();
             finish();
             startActivity(getIntent());
 
@@ -156,7 +162,7 @@ public class ViewIntelActivity extends AppCompatActivity
             Intent openViewContacts = new Intent(this, ViewContactsActivity.class);
             startActivity(openViewContacts);
         } else if (id == R.id.nav_intel) {
-            Intent openViewIntel = new Intent(this, ViewIntelActivity.class);
+            Intent openViewIntel = new Intent(this, ViewOperationActivity.class);
             startActivity(openViewIntel);
 
         } else if (id == R.id.nav_locations) {

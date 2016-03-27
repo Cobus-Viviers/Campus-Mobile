@@ -3,6 +3,7 @@ package cobus.project;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -96,6 +97,8 @@ public class AddContactActivity extends AppCompatActivity
         } else if (id == R.id.nav_locations) {
 
         } else if (id == R.id.nav_operation) {
+            Intent openViewOperation = new Intent(this, ViewOperationActivity.class);
+            startActivity(openViewOperation);
 
         }
 
@@ -115,11 +118,10 @@ public class AddContactActivity extends AppCompatActivity
         }
         else {
             try {
-                SQLiteDatabase DatabaseManipulator = this.openOrCreateDatabase("DailyAgentLife", MODE_PRIVATE, null);
-                DatabaseManipulator.execSQL("CREATE TABLE IF NOT EXISTS tblContact(ID integer primary key, Contact VARCHAR, Information VARCHAR, Number VARCHAR);");
+                Contact temp = new Contact(contact, information, number);
+                DatabaseHandler dh = new DatabaseHandler(this);
+                dh.addContact(temp);
 
-                DatabaseManipulator.execSQL(String.format("INSERT INTO tblContact(Contact, Information, Number) VALUES('%s', '%s', '%s')",
-                        contact, information, number));
                 Toast.makeText(this, "Contact Added", Toast.LENGTH_LONG).show();
                 Intent openViewContact = new Intent(this, ViewContactsActivity.class);
                 startActivity(openViewContact);

@@ -14,6 +14,11 @@ public class Intel {
         Information = information;
     }
 
+    public Intel(String threat, String information) {
+        Threat = threat;
+        Information = information;
+    }
+
     public int getId() {
         return id;
     }

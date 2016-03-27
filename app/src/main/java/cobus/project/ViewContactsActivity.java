@@ -1,5 +1,7 @@
 package cobus.project;
 
+import android.app.DatePickerDialog;
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -23,15 +25,16 @@ import android.widget.Toast;
 
 public class ViewContactsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    Contact[] contacts = getContacts();
+
+    Contact[] contacts;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
+        DatabaseHandler DH = new DatabaseHandler(this.getBaseContext());
+        contacts = DH.getContacts();
         //Create list view
         ListAdapter adapter = new ContactsAdapter(this, contacts);
 
@@ -103,8 +106,7 @@ public class ViewContactsActivity extends AppCompatActivity
             startActivity(openEditContactActivity);
         }
         if (menuItemIndex == 1){
-            SQLiteDatabase DatabaseManipulator = this.openOrCreateDatabase("DailyAgentLife",MODE_PRIVATE, null);
-            DatabaseManipulator.execSQL("DELETE FROM tblContact WHERE id = '" + contact.getId() + "';");
+            new DatabaseHandler(this).delete(contact.getId(), "tblContact");
             Toast.makeText(ViewContactsActivity.this, contacts[info.position].getContact()+" has been deleted", Toast.LENGTH_SHORT).show();
             finish();
             startActivity(getIntent());
@@ -113,25 +115,6 @@ public class ViewContactsActivity extends AppCompatActivity
         return true;
     }
 
-    private Contact[] getContacts(){
-        Cursor cursor = LoginActivity.DatabaseManipulator.rawQuery("SELECT * FROM tblContact", null);
-        cursor.moveToFirst();
-
-        Contact[] contacts = new Contact[cursor.getCount()];
-        int index = 0;
-        if (cursor.getCount() > 0){
-            do {
-                String id = cursor.getString(0);
-                String contact = cursor.getString(1);
-                String information = cursor.getString(2);
-                String number = cursor.getString(3);
-                contacts[index] = new Contact(Integer.parseInt(id), contact, information, number);
-                index++;
-            }while(cursor.moveToNext());
-        }
-        cursor.close();
-        return contacts;
-    }
 
     @Override
     public void onBackPressed() {
@@ -182,6 +165,8 @@ public class ViewContactsActivity extends AppCompatActivity
         } else if (id == R.id.nav_locations) {
 
         } else if (id == R.id.nav_operation) {
+            Intent openViewOperation = new Intent(this, ViewOperationActivity.class);
+            startActivity(openViewOperation);
 
         }
 

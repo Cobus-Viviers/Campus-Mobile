@@ -2,7 +2,9 @@ package cobus.project;
 
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -51,6 +53,19 @@ public class ContactDetailsActivity extends AppCompatActivity
         txtViewContactContact.append("\n" + intent.getExtras().getString("Contact"));
         txtViewContactInformation.append("\n" + intent.getExtras().getString("Information"));
         txtViewContactNumber.append("\n" + intent.getExtras().getString("Number"));
+
+        final Intent callContact = new Intent(Intent.ACTION_CALL);
+        callContact.setData(Uri.parse("tel:"+intent.getExtras().getString("Number")));
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        assert fab != null;
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                startActivity(callContact);
+            }
+        });
 
     }
 
@@ -104,6 +119,8 @@ public class ContactDetailsActivity extends AppCompatActivity
         } else if (id == R.id.nav_locations) {
 
         } else if (id == R.id.nav_operation) {
+            Intent openViewOperation = new Intent(this, ViewOperationActivity.class);
+            startActivity(openViewOperation);
 
         }
 

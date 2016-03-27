@@ -1,7 +1,10 @@
 package cobus.project;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -9,28 +12,48 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
-/**
- * Created by Tsuki on 2016/03/22.
- */
-public class UpdateContactActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-    EditText edtContact, edtInformation, edtNumber;
-    Intent intent;
-    int id;
+import java.lang.reflect.Array;
+import java.text.Format;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+
+public class AddOperationActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener, DatePickerDialog.OnDateSetListener {
+
+    Calendar calendar = Calendar.getInstance();
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-d");
+    Date date = calendar.getTime();
+    Spinner agentSpinner;
+    EditText edtInformation;
+    Contact[] contacts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_updatecontact);
+        setContentView(R.layout.activity_addoperation);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        TextView textView = (TextView) findViewById(R.id.txtDatePicker);
 
+        try {
+            assert textView != null;
+            textView.setText(format.format(date));
+        }catch (Exception e){Toast.makeText(AddOperationActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();}
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -42,16 +65,20 @@ public class UpdateContactActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         assert navigationView != null;
         navigationView.setNavigationItemSelectedListener(this);
-        intent = getIntent();
-        edtContact = (EditText) findViewById(R.id.edtContact);
+
+        DatabaseHandler dh = new DatabaseHandler(this);
+
+        contacts = dh.getContacts();
+        String[] contactStrings = new String[contacts.length];
+        for (int i = 0; i<contacts.length; i++){
+            contactStrings[i] = contacts[i].getContact();
+        }
+        ArrayAdapter adapter = new  ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, contactStrings);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        agentSpinner = (Spinner) findViewById(R.id.spinnerAgents);
+        agentSpinner.setAdapter(adapter);
+
         edtInformation = (EditText) findViewById(R.id.edtInformation);
-        edtNumber = (EditText) findViewById(R.id.edtNumber);
-
-        edtContact.setText(intent.getExtras().getString("Contact"));
-        edtInformation.setText(intent.getExtras().getString("Information"));
-        edtNumber.setText(intent.getExtras().getString("Number"));
-        id = intent.getExtras().getInt("ID");
-
     }
 
     @Override
@@ -116,35 +143,48 @@ public class UpdateContactActivity extends AppCompatActivity
     }
 
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+     //   threat = parent.getItemAtPosition(position).toString();
+    }
 
-    public void onEditContactCancel(View view) {
-        finish();
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
 
     }
 
-    public void onEditContactClick(View view) {
-
-        String contact = edtContact.getText().toString();
+    public void onAddOperationClick(View view) {
         String information = edtInformation.getText().toString();
-        String number = edtNumber.getText().toString();
-        if(contact.isEmpty() || information.isEmpty() || number.isEmpty()){
-            Toast.makeText(this, "Please fill in all text boxes", Toast.LENGTH_SHORT).show();
-        }
-        else {
-            try {
-                Contact temp = new Contact(id, contact, information, number);
-                DatabaseHandler dh = new DatabaseHandler(this);
-
-                dh.updateContact(temp);
-
-                Intent openViewContact = new Intent(this, ViewContactsActivity.class);
-                startActivity(openViewContact);
-
-            }catch (Exception e)
-            {
-                Toast.makeText(UpdateContactActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+        try {
+            Contact agent = contacts[agentSpinner.getSelectedItemPosition()];
+            if (!information.isEmpty()) {
+                Operation operation = new Operation(information, date, agent);
+                DatabaseHandler dh = new DatabaseHandler(getBaseContext());
+                dh.addOperation(operation);
+                Intent openViewOperations = new Intent(getBaseContext(), ViewOperationActivity.class);
+                startActivity(openViewOperations);
             }
-            finish();
-        }
+        }catch (Exception e){ Toast.makeText(AddOperationActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();}
+        finish();
     }
+
+    public void onClickDatePicker(View view) {
+        DatePickerFragment fragment = new DatePickerFragment();
+        fragment.show(getFragmentManager(), "DatePicker");
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int day) {
+
+        calendar.set(year, month, day);
+        date = calendar.getTime();
+
+       TextView textView =  (TextView) findViewById(R.id.txtDatePicker);
+        if (textView != null) {
+            textView.setText(format.format(date));
+        }
+
+    }
+
+
 }

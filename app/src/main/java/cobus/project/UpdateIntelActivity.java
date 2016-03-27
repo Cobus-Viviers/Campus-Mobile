@@ -105,6 +105,8 @@ public class UpdateIntelActivity extends AppCompatActivity
         } else if (id == R.id.nav_locations) {
 
         } else if (id == R.id.nav_operation) {
+            Intent openViewOperation = new Intent(this, ViewOperationActivity.class);
+            startActivity(openViewOperation);
 
         }
 
@@ -122,7 +124,7 @@ public class UpdateIntelActivity extends AppCompatActivity
 
     public void onEditIntelClick(View view) {
 
-        SQLiteDatabase DatabaseManipulator = this.openOrCreateDatabase("DailyAgentLife",MODE_PRIVATE, null);
+
         String information = edtInformation.getText().toString();
         String threat = spinner.getSelectedItem().toString();
 
@@ -131,8 +133,9 @@ public class UpdateIntelActivity extends AppCompatActivity
         }
         else {
             try {
-                DatabaseManipulator.execSQL(String.format("UPDATE tblIntel SET Information = '%s', Threat = '%s' WHERE ID = '%s';"
-                        ,information, threat, id));
+                Intel intel = new Intel(id, threat, information);
+                DatabaseHandler dh = new DatabaseHandler(this);
+                dh.updateIntel(intel);
 
                 Intent openViewIntel = new Intent(this, ViewIntelActivity.class);
                 startActivity(openViewIntel);
