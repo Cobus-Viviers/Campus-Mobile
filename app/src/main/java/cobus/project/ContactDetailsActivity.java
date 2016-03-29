@@ -55,7 +55,7 @@ public class ContactDetailsActivity extends AppCompatActivity
         txtViewContactNumber.append("\n" + intent.getExtras().getString("Number"));
 
         final Intent callContact = new Intent(Intent.ACTION_CALL);
-        callContact.setData(Uri.parse("tel:"+intent.getExtras().getString("Number")));
+        callContact.setData(Uri.parse("tel:" + intent.getExtras().getString("Number")));
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         assert fab != null;
@@ -117,6 +117,8 @@ public class ContactDetailsActivity extends AppCompatActivity
             startActivity(openViewIntel);
 
         } else if (id == R.id.nav_locations) {
+            Intent openLocationsActivity = new Intent(this, LocationsActivity.class);
+            startActivity(openLocationsActivity);
 
         } else if (id == R.id.nav_operation) {
             Intent openViewOperation = new Intent(this, ViewOperationActivity.class);

@@ -20,10 +20,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private final String TNAME_CONTACT = "tblContact";
     private final String TNAME_OPERATION = "tblOperation";
     private final String TNAME_INTEL = "tblIntel";
+    private final String TNAME_USER = "tblUser";
+    private final String TNAME_LOCATION = "tblLocation";
 
     private final String[] COLS_CONTACT;
     private final String[] COLS_OPERATION;
     private final String[] COLS_INTEL;
+    private final String COLS_USERNAME = "Username";
+    private final String COLS_PASSWORD = "Password";
+    private final String[] COLS_LOCATION;
 
 
 
@@ -33,6 +38,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         COLS_CONTACT = new String[]{"ID", "Contact", "Information", "Number"};
         COLS_OPERATION = new String[]{"ID", "Agent", "Information", "StartDate"};
         COLS_INTEL = new String[]{"ID", "Information", "Threat"};
+        COLS_LOCATION = new String[]{"lat", "lng",  "info"};
     }
 
     @Override
@@ -55,19 +61,33 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(createOperationCommand);
 
         String createIntelCommand = "CREATE TABLE " + TNAME_INTEL + "("
-                + COLS_INTEL[0] + " INTEGER PRIMARY KEY, "+""
+                + COLS_INTEL[0] + " INTEGER PRIMARY KEY, "
                 + COLS_INTEL[1] + " VARCHAR, "
                 + COLS_INTEL[2] + " VARCHAR) ";
         Log.v("ProjectSqlDebug", createIntelCommand);
         db.execSQL(createIntelCommand);
+
+        String createUserCommand = "CREATE TABLE "+ TNAME_USER + "("
+                + COLS_USERNAME + " VARCHAR, "
+                + COLS_PASSWORD + " VARCHAR);";
+        Log.v("DEBUG SQL", createContactCommand);
+        db.execSQL(createUserCommand);
+
+        String createLocationCommand = "CREATE TABLE "+ TNAME_LOCATION + "("
+                + COLS_CONTACT[0] + " DOUBLE, "+""
+                + COLS_CONTACT[1] + " DOUBLE, "
+                + COLS_CONTACT[2] + " VARCHAR);";
+        Log.v("DEBUG SQL", createContactCommand);
+        db.execSQL(createLocationCommand);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TNAME_OPERATION);
-        db.execSQL("DROP TABLE IF EXISTS "+ TNAME_INTEL);
+        db.execSQL("DROP TABLE IF EXISTS " + TNAME_INTEL);
         db.execSQL("DROP TABLE IF EXISTS " + TNAME_CONTACT);
-
+        db.execSQL("DROP TABLE IF EXISTS " + TNAME_LOCATION);
+        db.execSQL("DROP TABLE IF EXISTS " + TNAME_USER);
         onCreate(db);
 
     }
@@ -180,8 +200,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Log.v("DEBUG", Integer.toString(cursor.getCount()));
         int index = 0;
         try {
-
-
             if (cursor.moveToFirst()) {
                 do {
                     String id = cursor.getString(0);
@@ -218,6 +236,59 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.update(TNAME_OPERATION, values, "ID = ?", new String[]{Integer.toString(operation.getiD())});
     }
 
+    public User getUser(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Log.v("DEBUG SQL", "SELECT * FROM "+ TNAME_USER + ";");
+        Cursor cursor = null;
+        try {
+             cursor =  db.rawQuery("SELECT * FROM "+ TNAME_USER + ";", null);
+
+        }catch (Exception e){Log.v("DEBUG", e.getMessage());}
+        User user = null;
+        if (cursor.moveToFirst()){
+            String username = cursor.getString(0);
+            String password = cursor.getString(1);
+            user = new User(username, password);
+        }
+        cursor.close();
+        return user;
+    }
+
+    public void registerUser(String username, String password){
+        SQLiteDatabase database = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLS_USERNAME, username);
+        values.put(COLS_PASSWORD, password);
+        database.insert(TNAME_USER, null, values);
+    }
+
+    public void saveLocation(double lat, double lng,  String info){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLS_LOCATION[0], lat);
+        values.put(COLS_LOCATION[1], lng);
+        values.put(COLS_LOCATION[2], info);
+        db.insert(TNAME_LOCATION, null, values);
+    }
+    public MyMarker[] getLocations(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor =  db.rawQuery("SELECT * FROM " + TNAME_LOCATION + ";", null);
+        Log.v("DEBUG","SELECT * FROM " + TNAME_LOCATION + ";" );
+        Log.v("Debug", Integer.toString(cursor.getCount()));
+        MyMarker[] markers = new MyMarker[cursor.getCount()];
+        int index = 0;
+        if (cursor.moveToFirst()){
+            do {
+                double lat = Double.parseDouble(cursor.getString(0));
+                double lng = Double.parseDouble(cursor.getString(1));
+                String info = cursor.getString(2);
+                markers[index] = new MyMarker(lat,lng, info);
+                index++;
+            }while (cursor.moveToNext());
+        }
+        cursor.close();
+        return markers;
+    }
     public void delete(int id, String tableName){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(tableName, "ID = ?", new String[]{Integer.toString(id)});
